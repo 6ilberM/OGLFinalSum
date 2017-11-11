@@ -61,6 +61,8 @@ Primitive *Cuadrado;
 CTerrain *TIERRA;
 CfrBuff *FRAMEBUFF;
 CSphere *esfera;
+CRain *Lluvia;
+
 
 TextLabel* label;
 TextLabel* Wind;
@@ -182,6 +184,7 @@ void mousePassiveMove(int x, int y)
 	front.y = sin(glm::radians(pitch));
 	front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
 	
+	mainCamera->setCameraFront(front);
 }
 
 bool updateMousePicking()
@@ -237,6 +240,8 @@ void init()
 	esfera->setPosition(glm::vec3(0, 0.0, 0));
 	esfera->setScale(glm::vec3(1, 1, 1));
 
+	Lluvia = new CRain(glm::vec3(0,0,0),4000,mainCamera,sextoprog);
+
 }
 int tempval = 2;
 
@@ -260,7 +265,6 @@ void update()
 	esfera->update(keyState, ball_pos);
 	SkyboxCube->update(1.0f);
 
-
 }
 
 void render()
@@ -272,8 +276,8 @@ void render()
 
 	//glStencilMask(0x00);
 	SkyboxCube->render();
-	esfera->render();
-
+	//esfera->render();
+	Lluvia->render(DeltaTime);
 	glutSwapBuffers();
 }
 

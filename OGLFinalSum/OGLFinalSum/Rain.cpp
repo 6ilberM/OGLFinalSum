@@ -1,7 +1,30 @@
 #include "Rain.h"
 
-CRain::CRain(int num_particles_width, int num_particles_height, Camera * _camera, GLuint prog)
+CRain::CRain(glm::vec3 origin, float _numparticles, Camera * _camera, GLuint prog)
 {
+	f_numparticles = _numparticles;
+	camera = _camera;
+	program = prog;
+	std::string textureFileName = "Assets/Images/Watah.png";
+
+	setTexture(textureFileName);
+
+	for (int i = 0; i < f_numparticles; i++)
+	{
+		vPositions.push_back(glm::vec3(0.0)); //initialize position vector
+		RParticle p = RParticle(origin, glm::vec3(randFloat(-0.010, 0.010), randFloat(0.01f, 0.15f), randFloat(-0.010, .010)), _camera);
+		particles.push_back(p); // add 
+	}
+
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+	glGenVertexArrays(1, &vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * vPositions.size(), &vPositions[0], GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (GLvoid*)0);
+	glEnableVertexAttribArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
 
 }
 
@@ -66,6 +89,66 @@ void CRain::render()
 	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * vPositions.size(), &vPositions[0], GL_STATIC_DRAW);
 
 	glBindVertexArray(0);
+}
+
+void CRain::render(float dt)
+{
+	glUseProgram(program);
+	//lets see
+	glm::mat4 model;
+	model = glm::translate(model, position);
+
+	model = glm::translate(model, glm::vec3(0.0f * this->scale.x, 0.0f * scale.y, 0.0f));
+	model = glm::rotate(model, glm::radians(angle.x), glm::vec3(1.0, 0.0, 0.0));
+	model = glm::rotate(model, glm::radians(angle.y), glm::vec3(0.0, 1.0, 0.0));
+	model = glm::rotate(model, glm::radians(angle.z), glm::vec3(0.0, 0.0, 1.0));
+	model = glm::translate(model, glm::vec3(-0.0f * scale.x, -0.0f * scale.y, 0.0f));
+	model = glm::scale(model, scale);
+
+
+	//model = glm::scale(model, scale);
+	//glm::mat4 mvp = camera->getProjectionMatrix() * camera->getViewMatrix() * model;
+	//hm
+	for (int i = 0; i < f_numparticles; i++)
+	{
+		particles[i].update(.0167);
+		vPositions[i] = particles[i].getPos();
+	}
+	glm::mat4 viewMat = camera->getViewMatrix();
+	glm::vec3 vQuad1, vQuad2;
+	glm::vec3 vView = camera->getFront();
+	glm::mat4 vp = camera->getProjectionMatrix() * camera->getViewMatrix();
+	vView = glm::normalize(vView);
+
+	vQuad1 = glm::cross(vView, camera->getUp());
+	vQuad1 = glm::normalize(vQuad1);
+	vQuad2 = glm::cross(vView, vQuad1);
+	vQuad2 = glm::normalize(vQuad2);
+
+	glUniform3f(glGetUniformLocation(program, "vQuad1"), vQuad1.x, vQuad1.y, vQuad1.z);
+	glUniform3f(glGetUniformLocation(program, "vQuad2"), vQuad2.x, vQuad2.y, vQuad2.z);
+
+	glUniformMatrix4fv(glGetUniformLocation(program, "vp"), 1, GL_FALSE, glm::value_ptr((vp)));
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glActiveTexture(GL_TEXTURE0);
+
+	glBindTexture(GL_TEXTURE_2D, texture);
+
+	glUniform1i(glGetUniformLocation(program, "Texture"), 0);
+
+	glBindVertexArray(vao);
+	glDrawArrays(GL_POINTS, 0, f_numparticles);
+	glBindVertexArray(0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * vPositions.size(), &vPositions[0], GL_STATIC_DRAW);
+
+	glBindVertexArray(0);
+
+	glDisable(GL_BLEND);
+
 }
 
 #pragma region Setters&getters

@@ -18,7 +18,6 @@
 #include "camera.h"
 #include "Rparticle.h"
 
-
 #include "glm\glm/glm.hpp"
 #include "glm\glm/gtc/matrix_transform.hpp"
 #include "glm\glm/gtc/type_ptr.hpp"
@@ -28,7 +27,7 @@ class CRain
 {
 public:
 	Camera* camera;
-	CRain(int num_particles_width, int num_particles_height, Camera* _camera, GLuint prog);
+	CRain(glm::vec3 origin, float _numparticles, Camera* _camera, GLuint prog);
 	~CRain();
 	//Vector holders
 	std::vector<VertexFormat>vertices;
@@ -61,10 +60,15 @@ public:
 
 	void render();
 
+	void render(float dt);
+
 /*	std::vector<Particle> particles;
 	std::vector<Constraint> constraints;*/ // alle constraints between particles as part of this cloth
 	
 	std::vector<glm::vec3> vPositions;
+
+	std::vector<RParticle> particles;
+
 #pragma region Setters&GEtters
 	void setPosition(glm::vec3 _position);
 	void setScale(glm::vec3 _scale);

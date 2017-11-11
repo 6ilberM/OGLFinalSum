@@ -20,6 +20,7 @@ class RParticle
 {
 public:
 	Camera* camera;
+
 	// can the particle move or not ?
 	bool m_bmovable;
 
@@ -37,13 +38,15 @@ public:
 	//how long
 	float f_elapsedTime;
 
-	RParticle(glm::vec3 pos);
+	RParticle(glm::vec3 origin, glm::vec3 pos, Camera * _camera);
 	~RParticle();
 	void update(float dt);
 
+
+
 	//void addForce(glm::vec3 f);
 
-	//glm::vec3& getPos();
+	glm::vec3& getPos();
 
 	//void resetAcceleration();
 
@@ -55,7 +58,7 @@ public:
 
 	//// notice, the normal is not unit length
 	//glm::vec3& getNormal();
-	//void reset();
+	void reset();
 	//void resetNormal();
 	//void limitnegy();
 	//void ShiftStatic(float _scale);
