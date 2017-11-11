@@ -12,9 +12,6 @@ CRain::~CRain()
 void CRain::update()
 {
 
-
-
-
 }
 
 void CRain::render()
@@ -190,36 +187,36 @@ void CRain::setTexture(std::string  texFileName) {
 
 #pragma endregion
 
-void CRain::windForce(const glm::vec3 direction)
-{
-	for (int x = 0; x < num_particles_width - 1; x++)
-	{
-		for (int y = 0; y < num_particles_height - 1; y++)
-		{
-			addWindForcesForTriangle(getParticle(x + 1, y), getParticle(x, y), getParticle(x, y + 1), direction);
-			addWindForcesForTriangle(getParticle(x + 1, y + 1), getParticle(x + 1, y), getParticle(x, y + 1), direction);
-		}
-	}
-}
-
-void CRain::addWindForcesForTriangle(Particle * p1, Particle * p2, Particle * p3, const glm::vec3 direction)
-{
-	glm::vec3 normal = calcTriangleNormal(p1, p2, p3);
-	glm::vec3 d = glm::normalize(normal);
-	glm::vec3 force = normal*(glm::dot(d, direction));
-	p1->addForce(force);
-	p2->addForce(force);
-	p3->addForce(force);
-}
-
-glm::vec3 CRain::calcTriangleNormal(Particle * p1, Particle * p2, Particle * p3)
-{
-	glm::vec3 pos1 = p1->getPos();
-	glm::vec3 pos2 = p2->getPos();
-	glm::vec3 pos3 = p3->getPos();
-
-	glm::vec3 v1 = pos2 - pos1;
-	glm::vec3 v2 = pos3 - pos1;
-
-	return glm::cross(v1, v2);
-}
+//void CRain::windForce(const glm::vec3 direction)
+//{
+//	for (int x = 0; x < num_particles_width - 1; x++)
+//	{
+//		for (int y = 0; y < num_particles_height - 1; y++)
+//		{
+//			addWindForcesForTriangle(getParticle(x + 1, y), getParticle(x, y), getParticle(x, y + 1), direction);
+//			addWindForcesForTriangle(getParticle(x + 1, y + 1), getParticle(x + 1, y), getParticle(x, y + 1), direction);
+//		}
+//	}
+//}
+//
+//void CRain::addWindForcesForTriangle(Particle * p1, Particle * p2, Particle * p3, const glm::vec3 direction)
+//{
+//	glm::vec3 normal = calcTriangleNormal(p1, p2, p3);
+//	glm::vec3 d = glm::normalize(normal);
+//	glm::vec3 force = normal*(glm::dot(d, direction));
+//	p1->addForce(force);
+//	p2->addForce(force);
+//	p3->addForce(force);
+//}
+//
+//glm::vec3 CRain::calcTriangleNormal(Particle * p1, Particle * p2, Particle * p3)
+//{
+//	glm::vec3 pos1 = p1->getPos();
+//	glm::vec3 pos2 = p2->getPos();
+//	glm::vec3 pos3 = p3->getPos();
+//
+//	glm::vec3 v1 = pos2 - pos1;
+//	glm::vec3 v2 = pos3 - pos1;
+//
+//	return glm::cross(v1, v2);
+//}

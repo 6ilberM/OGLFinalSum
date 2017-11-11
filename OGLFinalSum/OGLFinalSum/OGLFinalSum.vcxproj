@@ -146,6 +146,7 @@
     <ClCompile Include="Particle.cpp" />
     <ClCompile Include="Primitive.cpp" />
     <ClCompile Include="Rain.cpp" />
+    <ClCompile Include="Rparticle.cpp" />
     <ClCompile Include="ShaderLoader.cpp" />
     <ClCompile Include="Skybox.cpp" />
     <ClCompile Include="Sphere.cpp" />
@@ -163,6 +164,7 @@
     <ClInclude Include="Particle.h" />
     <ClInclude Include="Primitive.h" />
     <ClInclude Include="Rain.h" />
+    <ClInclude Include="Rparticle.h" />
     <ClInclude Include="ShaderLoader.h" />
     <ClInclude Include="Skybox.h" />
     <ClInclude Include="Sphere.h" />

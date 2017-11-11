@@ -16,7 +16,7 @@
 #include <vector>
 #include <time.h>  
 #include "camera.h"
-#include "Constraint.h"
+#include "Rparticle.h"
 
 
 #include "glm\glm/glm.hpp"
@@ -61,8 +61,9 @@ public:
 
 	void render();
 
-	std::vector<Particle> particles;
-	std::vector<Constraint> constraints; // alle constraints between particles as part of this cloth
+/*	std::vector<Particle> particles;
+	std::vector<Constraint> constraints;*/ // alle constraints between particles as part of this cloth
+	
 	std::vector<glm::vec3> vPositions;
 #pragma region Setters&GEtters
 	void setPosition(glm::vec3 _position);
@@ -87,13 +88,13 @@ public:
 #pragma endregion
 
 	//Optional func
-	Particle* getParticle(int x, int y) { return &particles[y*num_particles_width + x]; }
-	void windForce(const glm::vec3 direction);
+	//Particle* getParticle(int x, int y) { return &particles[y*num_particles_width + x]; }
+	//void windForce(const glm::vec3 direction);
 
 
-	void addWindForcesForTriangle(Particle * p1, Particle * p2, Particle * p3, const glm::vec3 direction);
+	//void addWindForcesForTriangle(Particle * p1, Particle * p2, Particle * p3, const glm::vec3 direction);
 
-	glm::vec3 calcTriangleNormal(Particle * p1, Particle * p2, Particle * p3);
+	//glm::vec3 calcTriangleNormal(Particle * p1, Particle * p2, Particle * p3);
 
 private:
 

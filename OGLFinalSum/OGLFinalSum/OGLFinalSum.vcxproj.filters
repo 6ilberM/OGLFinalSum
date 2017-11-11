@@ -87,6 +87,9 @@
     <ClCompile Include="Rain.cpp">
       <Filter>Source Files\rain</Filter>
     </ClCompile>
+    <ClCompile Include="Rparticle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h">
@@ -132,6 +135,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Rain.h">
+      <Filter>Header Files\Rain</Filter>
+    </ClInclude>
+    <ClInclude Include="Rparticle.h">
       <Filter>Header Files\Rain</Filter>
     </ClInclude>
   </ItemGroup>

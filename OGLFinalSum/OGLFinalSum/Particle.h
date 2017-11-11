@@ -8,9 +8,9 @@
 // (c) 2017 Media Design School.
 //
 // File Name    :Particle.h
-// Description    : ParticleCreation .h
-// Author        :Gilberto Moreno & Gibson Hickey
-// Mail            :gilberto.mor6945@mediadesign.school.nz
+// Description  : ParticleCreation .h
+// Author       :Gilberto Moreno
+// Mail         :gilberto.mor6945@mediadesign.school.nz
 
 #include "ShaderLoader.h"
 #include "Utils.h"
