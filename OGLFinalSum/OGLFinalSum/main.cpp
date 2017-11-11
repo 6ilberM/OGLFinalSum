@@ -241,7 +241,6 @@ void init()
 	esfera->setScale(glm::vec3(1, 1, 1));
 
 	Lluvia = new CRain(glm::vec3(0,0,0),4000,mainCamera,sextoprog);
-
 }
 int tempval = 2;
 

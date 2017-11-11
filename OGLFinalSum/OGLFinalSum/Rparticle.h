@@ -7,6 +7,7 @@
 #include <time.h>  
 #include "camera.h"
 #include <random>
+#include <iostream>
 
 using namespace std;
 
@@ -20,7 +21,7 @@ class RParticle
 {
 public:
 	Camera* camera;
-
+	
 	// can the particle move or not ?
 	bool m_bmovable;
 
@@ -42,8 +43,6 @@ public:
 	RParticle(glm::vec3 origin, glm::vec3 pos, Camera * _camera);
 	~RParticle();
 	void update(float dt);
-
-
 
 	//void addForce(glm::vec3 f);
 

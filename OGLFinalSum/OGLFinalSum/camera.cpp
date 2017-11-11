@@ -11,7 +11,7 @@ void Camera::init()
 	Up = glm::vec3(0.0f, 1.0f, 0.0f);
 
 	viewMatrix = glm::lookAt(Pos, Pos + Front, Up);
-	projectionMatrix = glm::perspective(45.0f, 800.0f / 800.0f, 1.0f, 60000.0f); //Window Width / Window Height
+	projectionMatrix = glm::perspective(45.0f, 800.0f / 800.0f, 1.0f, 2000.0f); //Window Width / Window Height
 }
 
 glm::mat4 Camera::getViewMatrix()
@@ -63,7 +63,6 @@ void Camera::keyMoveCamera(unsigned char _keyState[255], float _deltaTime)
 	//	Up = glm::vec3(0.0f, 1.0f, 0.0f);
 
 	//}
-
 	viewMatrix = glm::lookAt(Pos, Pos + Front, Up);
 }
 

@@ -27,6 +27,7 @@ class CRain
 {
 public:
 	Camera* camera;
+	int Scalar;
 	CRain(glm::vec3 origin, float _numparticles, Camera* _camera, GLuint prog);
 	~CRain();
 	//Vector holders
@@ -59,8 +60,6 @@ public:
 	void update();
 
 	void render();
-
-	bool myComparison(RParticle a, RParticle b);
 
 	void render(float dt);
 

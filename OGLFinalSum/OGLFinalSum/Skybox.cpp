@@ -96,7 +96,7 @@ void Skybox::render() {
 	glBindTexture(GL_TEXTURE_CUBE_MAP, texture);
 	glm::mat4 world;
 	//change far plane
-	world = glm::scale(world, glm::vec3(650.0f, 650.0f, 650.0f));
+	world = glm::scale(world, glm::vec3(260.0f, 260.0f, 260.0f));
 	glm::mat4 mvp;
 	mvp = camera->getProjectionMatrix() * camera->getViewMatrix() * world;
 	glUniformMatrix4fv(glGetUniformLocation(program, "mvp"), 1, GL_FALSE, glm::value_ptr(mvp));

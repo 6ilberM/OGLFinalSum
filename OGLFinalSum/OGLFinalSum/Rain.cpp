@@ -5,16 +5,15 @@ CRain::CRain(glm::vec3 origin, float _numparticles, Camera * _camera, GLuint pro
 	f_numparticles = _numparticles;
 	camera = _camera;
 	program = prog;
-	std::string textureFileName = "Assets/Images/Watah.png";
-
+	scale = glm::vec3(3.0f,3.0f,3.0f);
+	std::string textureFileName = "Assets/Images/waterpng.png";
+	Scalar = 1200;
 	setTexture(textureFileName);
 
 	for (int i = 0; i < f_numparticles; i++)
 	{
 		vPositions.push_back(glm::vec3(0.0)); //initialize position vector
-		RParticle p = RParticle(origin, glm::vec3(randFloat(-0.010, 0.010), randFloat(0.01f, 0.15f), randFloat(-0.010, .010)), _camera);
-
-		
+		RParticle p = RParticle(origin, glm::vec3(randFloat(-0.010*Scalar*2, 0.010*Scalar*2), randFloat(0.013f*400, 0.15f*400), randFloat(-0.010*Scalar*2, .010*Scalar*2)), _camera);
 		particles.push_back(p); // add 
 	}
 
@@ -93,32 +92,36 @@ void CRain::render()
 	glBindVertexArray(0);
 }
 
-bool CRain::myComparison(RParticle a, RParticle b) {
+bool myComparison(RParticle a, RParticle b) {
 	return (a.getDistance() > b.getDistance());
 };
+
 void CRain::render(float dt)
 {
 	glUseProgram(program);
 	//lets see
-	//glm::mat4 model;
-	//model = glm::translate(model, position);
+	glm::mat4 model;
+	model = glm::translate(model, position);
 
-	//model = glm::translate(model, glm::vec3(0.0f * this->scale.x, 0.0f * scale.y, 0.0f));
-	//model = glm::rotate(model, glm::radians(angle.x), glm::vec3(1.0, 0.0, 0.0));
-	//model = glm::rotate(model, glm::radians(angle.y), glm::vec3(0.0, 1.0, 0.0));
-	//model = glm::rotate(model, glm::radians(angle.z), glm::vec3(0.0, 0.0, 1.0));
-	//model = glm::translate(model, glm::vec3(-0.0f * scale.x, -0.0f * scale.y, 0.0f));
-	//model = glm::scale(model, scale);
+	model = glm::translate(model, glm::vec3(0.0f * this->scale.x, 0.0f * scale.y, 0.0f));
+	model = glm::rotate(model, glm::radians(angle.x), glm::vec3(1.0, 0.0, 0.0));
+	model = glm::rotate(model, glm::radians(angle.y), glm::vec3(0.0, 1.0, 0.0));
+	model = glm::rotate(model, glm::radians(angle.z), glm::vec3(0.0, 0.0, 1.0));
+	model = glm::translate(model, glm::vec3(-0.0f * scale.x, -0.0f * scale.y, 0.0f));
+	model = glm::scale(model, scale);
 
 
-	//model = glm::scale(model, scale);
-	//glm::mat4 mvp = camera->getProjectionMatrix() * camera->getViewMatrix() * model;
-	//hm
+	model = glm::scale(model, scale);
+	glm::mat4 mvp = camera->getProjectionMatrix() * camera->getViewMatrix() * model;
+	
 	for (int i = 0; i < f_numparticles; i++)
 	{
 		particles[i].update(.0167);
 		vPositions[i] = particles[i].getPos();
 	}
+
+	std::sort(particles.begin(), particles.end(),myComparison);
+
 	glm::mat4 viewMat = camera->getViewMatrix();
 	glm::vec3 vQuad1, vQuad2;
 	glm::vec3 vView = camera->getFront();
@@ -133,7 +136,7 @@ void CRain::render(float dt)
 	glUniform3f(glGetUniformLocation(program, "vQuad1"), vQuad1.x, vQuad1.y, vQuad1.z);
 	glUniform3f(glGetUniformLocation(program, "vQuad2"), vQuad2.x, vQuad2.y, vQuad2.z);
 
-	glUniformMatrix4fv(glGetUniformLocation(program, "vp"), 1, GL_FALSE, glm::value_ptr((vp)));
+	glUniformMatrix4fv(glGetUniformLocation(program, "vp"), 1, GL_FALSE, glm::value_ptr((mvp)));
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
