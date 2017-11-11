@@ -32,6 +32,7 @@ public:
 	glm::vec3  velocity;
 	glm::vec3  acceleration;
 	glm::vec3  accumulated_normal;
+	float cameraDist;
 
 	//Scalar
 	float f_speed;
@@ -47,7 +48,7 @@ public:
 	//void addForce(glm::vec3 f);
 
 	glm::vec3& getPos();
-
+	float getDistance();
 	//void resetAcceleration();
 
 	//void offsetPos(const glm::vec3 v);
@@ -58,7 +59,7 @@ public:
 
 	//// notice, the normal is not unit length
 	//glm::vec3& getNormal();
-	void reset();
+	//void reset();
 	//void resetNormal();
 	//void limitnegy();
 	//void ShiftStatic(float _scale);

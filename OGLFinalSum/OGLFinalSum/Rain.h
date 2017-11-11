@@ -17,7 +17,7 @@
 #include <time.h>  
 #include "camera.h"
 #include "Rparticle.h"
-
+#include <algorithm>
 #include "glm\glm/glm.hpp"
 #include "glm\glm/gtc/matrix_transform.hpp"
 #include "glm\glm/gtc/type_ptr.hpp"
@@ -59,6 +59,8 @@ public:
 	void update();
 
 	void render();
+
+	bool myComparison(RParticle a, RParticle b);
 
 	void render(float dt);
 

@@ -13,6 +13,8 @@ CRain::CRain(glm::vec3 origin, float _numparticles, Camera * _camera, GLuint pro
 	{
 		vPositions.push_back(glm::vec3(0.0)); //initialize position vector
 		RParticle p = RParticle(origin, glm::vec3(randFloat(-0.010, 0.010), randFloat(0.01f, 0.15f), randFloat(-0.010, .010)), _camera);
+
+		
 		particles.push_back(p); // add 
 	}
 
@@ -91,19 +93,22 @@ void CRain::render()
 	glBindVertexArray(0);
 }
 
+bool CRain::myComparison(RParticle a, RParticle b) {
+	return (a.getDistance() > b.getDistance());
+};
 void CRain::render(float dt)
 {
 	glUseProgram(program);
 	//lets see
-	glm::mat4 model;
-	model = glm::translate(model, position);
+	//glm::mat4 model;
+	//model = glm::translate(model, position);
 
-	model = glm::translate(model, glm::vec3(0.0f * this->scale.x, 0.0f * scale.y, 0.0f));
-	model = glm::rotate(model, glm::radians(angle.x), glm::vec3(1.0, 0.0, 0.0));
-	model = glm::rotate(model, glm::radians(angle.y), glm::vec3(0.0, 1.0, 0.0));
-	model = glm::rotate(model, glm::radians(angle.z), glm::vec3(0.0, 0.0, 1.0));
-	model = glm::translate(model, glm::vec3(-0.0f * scale.x, -0.0f * scale.y, 0.0f));
-	model = glm::scale(model, scale);
+	//model = glm::translate(model, glm::vec3(0.0f * this->scale.x, 0.0f * scale.y, 0.0f));
+	//model = glm::rotate(model, glm::radians(angle.x), glm::vec3(1.0, 0.0, 0.0));
+	//model = glm::rotate(model, glm::radians(angle.y), glm::vec3(0.0, 1.0, 0.0));
+	//model = glm::rotate(model, glm::radians(angle.z), glm::vec3(0.0, 0.0, 1.0));
+	//model = glm::translate(model, glm::vec3(-0.0f * scale.x, -0.0f * scale.y, 0.0f));
+	//model = glm::scale(model, scale);
 
 
 	//model = glm::scale(model, scale);
