@@ -40,6 +40,7 @@
 #include "Sphere.h"
 #include "Subtitle.h"
 #include "Rain.h"
+#include "Light.h"
 
 //Globals
 GLuint program;
@@ -49,6 +50,7 @@ GLuint qtoprogram;
 GLuint fifprogram;
 GLuint sextoprog;
 GLuint textProgram;
+GLuint LightProgram;
 
 GLuint texture;
 GLuint lightVao;
@@ -62,7 +64,6 @@ CTerrain *TIERRA;
 CfrBuff *FRAMEBUFF;
 CSphere *esfera;
 CRain *Lluvia;
-
 
 TextLabel* label;
 TextLabel* Wind;
@@ -212,6 +213,7 @@ void init()
 	fifprogram = sLoader.createProgram("Assets/Shaders/TriangleTs.vs", "Assets/Shaders/TriangleTs.fs", "Assets/Shaders/TriangleTs.tcs", "Assets/Shaders/TriangleTs.tes");
 	sextoprog = sLoader.createprogram("Assets/Shaders/Particle.vs", "Assets/Shaders/Particle.fs", "Assets/Shaders/Particle.gs");
 	textProgram = sLoader.createprogram("Assets/Shaders/text.vs", "Assets/Shaders/text.fs");
+	LightProgram = sLoader.createprogram("Assets/Shaders/Light.vs", "Assets/Shaders/Light.fs");
 
 #pragma region Other Cubes
 

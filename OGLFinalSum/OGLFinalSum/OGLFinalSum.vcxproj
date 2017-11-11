@@ -142,6 +142,7 @@
     <ClCompile Include="Cloth.cpp" />
     <ClCompile Include="Constraint.cpp" />
     <ClCompile Include="FrameBuffer.cpp" />
+    <ClCompile Include="Light.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Particle.cpp" />
     <ClCompile Include="Primitive.cpp" />
@@ -161,6 +162,7 @@
     <ClInclude Include="Cloth.h" />
     <ClInclude Include="Constraint.h" />
     <ClInclude Include="FrameBuffer.h" />
+    <ClInclude Include="Light.h" />
     <ClInclude Include="Particle.h" />
     <ClInclude Include="Primitive.h" />
     <ClInclude Include="Rain.h" />
