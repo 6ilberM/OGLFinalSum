@@ -35,11 +35,11 @@
 #include "FrameBuffer.h"
 #include "Star.h"
 #include "Tessel.h"
-#include "Cloth.h"
 #include "Particle.h"
 #include "Constraint.h"
 #include "Sphere.h"
 #include "Subtitle.h"
+#include "Rain.h"
 
 //Globals
 GLuint program;
@@ -58,14 +58,8 @@ GLuint labelprog;
 Camera *mainCamera;
 Skybox *SkyboxCube;
 Primitive *Cuadrado;
-Primitive *Cuad_SC;
-Primitive *Cuad_ST;
-Primitive *Cuad_Water;
 CTerrain *TIERRA;
 CfrBuff *FRAMEBUFF;
-GeoStar *Star;
-CTessel *Testriangle;
-Ccloth *cloth1;
 CSphere *esfera;
 
 TextLabel* label;
@@ -215,6 +209,7 @@ void init()
 	fifprogram = sLoader.createProgram("Assets/Shaders/TriangleTs.vs", "Assets/Shaders/TriangleTs.fs", "Assets/Shaders/TriangleTs.tcs", "Assets/Shaders/TriangleTs.tes");
 	sextoprog = sLoader.createprogram("Assets/Shaders/Particle.vs", "Assets/Shaders/Particle.fs", "Assets/Shaders/Particle.gs");
 	textProgram = sLoader.createprogram("Assets/Shaders/text.vs", "Assets/Shaders/text.fs");
+
 #pragma region Other Cubes
 
 	Cuadrado = new Primitive(mainCamera, secprogram);
@@ -252,7 +247,7 @@ void update()
 {
 	ball_time++;
 
-	ball_pos.z = (cos(ball_time));
+	ball_pos.z = glm::cos((ball_time*10.0f)/23);
 
 	auto t1 = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<float, std::milli> fp_ms = t1 - t2;
@@ -260,10 +255,9 @@ void update()
 	DeltaTime = DeltaTime * 1 / 1000.0f;
 	t2 = t1;
 
-
 	glutPostRedisplay();
 	mainCamera->keyMoveCamera(keyState, DeltaTime);
-
+	esfera->update(keyState, ball_pos);
 	SkyboxCube->update(1.0f);
 
 
@@ -278,7 +272,7 @@ void render()
 
 	//glStencilMask(0x00);
 	SkyboxCube->render();
-
+	esfera->render();
 
 	glutSwapBuffers();
 }

@@ -31,6 +31,12 @@
     <Filter Include="Resource Files\Shaders\tes">
       <UniqueIdentifier>{c51fe8a0-9f0f-4f8d-9990-b5dd298c46d4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Rain">
+      <UniqueIdentifier>{c7e89fe2-9c12-4273-a45d-ed06ff0380dd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\rain">
+      <UniqueIdentifier>{c6df9c8c-6ade-4867-8983-aaa7c92ce044}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="camera.cpp">
@@ -78,6 +84,9 @@
     <ClCompile Include="Utils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Rain.cpp">
+      <Filter>Source Files\rain</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h">
@@ -121,6 +130,9 @@
     </ClInclude>
     <ClInclude Include="Utils.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Rain.h">
+      <Filter>Header Files\Rain</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

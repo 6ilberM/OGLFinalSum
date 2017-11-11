@@ -9,7 +9,7 @@
 //
 // File Name    :cloth.h
 // Description    : class declaration of manager for cloth
-// Author        :Gilberto Moreno & Gibson Hickey
+// Author        :Gilberto Moreno 
 // Mail            :gilberto.mor6945@mediadesign.school.nz
 #include "ShaderLoader.h"
 #include "Utils.h"

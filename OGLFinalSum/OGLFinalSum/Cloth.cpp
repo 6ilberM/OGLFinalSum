@@ -8,8 +8,80 @@
 //
 // File Name    :cloth.cpp
 // Description    : cpp manager for cloth
-// Author        :Gilberto Moreno & Gibson Hickey
+// Author        :Gilberto Moreno
 // Mail            :gilberto.mor6945@mediadesign.school.nz
+
+Ccloth::Ccloth(float width, float height, int num_particles_width, int num_particles_height, Camera * _camera, GLuint prog, int hooks) : num_particles_width(num_particles_width), num_particles_height(num_particles_height)
+{
+	camera = _camera;
+	program = prog;
+	std::string textureFileName = "Assets/Images/Red_Wool.png";
+	scale = glm::vec3(20, 20, 20);
+	position = glm::vec3(0.0f, 0.0f, 0.0f);
+	color = glm::vec3(1.0f, 1.0f, 1.0f);
+	rotationAxis = glm::bvec3(0.0f, 0.0f, 1.0f);
+	m_hooks = hooks;
+	f_numparticles = num_particles_width*num_particles_height;
+
+	particles.resize(num_particles_width*num_particles_height); //I am essentially using this vector as an array with room for num_particles_width*num_particles_height particles
+
+																// creating particles in a grid of particles from (0,0,0) to (width,-height,0)
+	for (int x = 0; x < num_particles_width; x++)
+	{
+		for (int y = 0; y < num_particles_height; y++)
+		{
+			glm::vec3 pos = glm::vec3(width * (x / (float)num_particles_width), -height * (y / (float)num_particles_height), 0);
+			particles[y*num_particles_width + x] = Particle(pos); // insert particle in column x at y'throw
+			vPositions.push_back(particles[y*num_particles_width + x].getPos());
+		}
+	}
+
+
+#pragma region CONSTRAINTS
+	// Connecting immediate neighbor particles with constraints (distance 1 and sqrt(2) in the grid)
+	for (int x = 0; x < num_particles_width; x++)
+	{
+		for (int y = 0; y < num_particles_height; y++)
+		{
+			if (x < num_particles_width - 1) makeConstraint(getParticle(x, y), getParticle(x + 1, y));
+			if (y < num_particles_height - 1) makeConstraint(getParticle(x, y), getParticle(x, y + 1));
+			if (x < num_particles_width - 1 && y < num_particles_height - 1) makeConstraint(getParticle(x, y), getParticle(x + 1, y + 1));
+			if (x < num_particles_width - 1 && y < num_particles_height - 1) makeConstraint(getParticle(x + 1, y), getParticle(x, y + 1));
+		}
+	}
+
+	// Connecting secondary neighbors with constraints (distance 2 and sqrt(4) in the grid)
+	for (int x = 0; x < num_particles_width; x++)
+	{
+		for (int y = 0; y < num_particles_height; y++)
+		{
+			if (x < num_particles_width - 2) makeConstraint(getParticle(x, y), getParticle(x + 2, y));
+			if (y < num_particles_height - 2) makeConstraint(getParticle(x, y), getParticle(x, y + 2));
+			if (x < num_particles_width - 2 && y < num_particles_height - 2) makeConstraint(getParticle(x, y), getParticle(x + 2, y + 2));
+			if (x < num_particles_width - 2 && y < num_particles_height - 2) makeConstraint(getParticle(x + 2, y), getParticle(x, y + 2));
+		}
+	}
+
+
+#pragma endregion
+
+
+
+
+	//new VAOSTUFF
+
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+	glGenVertexArrays(1, &vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * vPositions.size(), &vPositions[0], GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (GLvoid*)0);
+	glEnableVertexAttribArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+}
+
+
 Ccloth::~Ccloth() {
 
 }
@@ -220,75 +292,6 @@ void Ccloth::drawTriangle(Particle * p1, Particle * p2, Particle * p3, const glm
 
 }
 //constructor
-Ccloth::Ccloth(float width, float height, int num_particles_width, int num_particles_height, Camera * _camera, GLuint prog, int hooks) : num_particles_width(num_particles_width), num_particles_height(num_particles_height)
-{
-	camera = _camera;
-	program = prog;
-	std::string textureFileName = "Assets/Images/Red_Wool.png";
-	scale = glm::vec3(20, 20, 20);
-	position = glm::vec3(0.0f, 0.0f, 0.0f);
-	color = glm::vec3(1.0f, 1.0f, 1.0f);
-	rotationAxis = glm::bvec3(0.0f, 0.0f, 1.0f);
-	m_hooks = hooks;
-	f_numparticles = num_particles_width*num_particles_height;
-
-	particles.resize(num_particles_width*num_particles_height); //I am essentially using this vector as an array with room for num_particles_width*num_particles_height particles
-
-																// creating particles in a grid of particles from (0,0,0) to (width,-height,0)
-	for (int x = 0; x < num_particles_width; x++)
-	{
-		for (int y = 0; y < num_particles_height; y++)
-		{
-			glm::vec3 pos = glm::vec3(width * (x / (float)num_particles_width), -height * (y / (float)num_particles_height), 0);
-			particles[y*num_particles_width + x] = Particle(pos); // insert particle in column x at y'throw
-			vPositions.push_back(particles[y*num_particles_width + x].getPos());
-		}
-	}
-
-
-#pragma region CONSTRAINTS
-	// Connecting immediate neighbor particles with constraints (distance 1 and sqrt(2) in the grid)
-	for (int x = 0; x < num_particles_width; x++)
-	{
-		for (int y = 0; y < num_particles_height; y++)
-		{
-			if (x < num_particles_width - 1) makeConstraint(getParticle(x, y), getParticle(x + 1, y));
-			if (y < num_particles_height - 1) makeConstraint(getParticle(x, y), getParticle(x, y + 1));
-			if (x < num_particles_width - 1 && y < num_particles_height - 1) makeConstraint(getParticle(x, y), getParticle(x + 1, y + 1));
-			if (x < num_particles_width - 1 && y < num_particles_height - 1) makeConstraint(getParticle(x + 1, y), getParticle(x, y + 1));
-		}
-	}
-
-	// Connecting secondary neighbors with constraints (distance 2 and sqrt(4) in the grid)
-	for (int x = 0; x < num_particles_width; x++)
-	{
-		for (int y = 0; y < num_particles_height; y++)
-		{
-			if (x < num_particles_width - 2) makeConstraint(getParticle(x, y), getParticle(x + 2, y));
-			if (y < num_particles_height - 2) makeConstraint(getParticle(x, y), getParticle(x, y + 2));
-			if (x < num_particles_width - 2 && y < num_particles_height - 2) makeConstraint(getParticle(x, y), getParticle(x + 2, y + 2));
-			if (x < num_particles_width - 2 && y < num_particles_height - 2) makeConstraint(getParticle(x + 2, y), getParticle(x, y + 2));
-		}
-	}
-
-
-#pragma endregion
-
-
-
-
-	//new VAOSTUFF
-
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
-	glGenVertexArrays(1, &vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * vPositions.size(), &vPositions[0], GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (GLvoid*)0);
-	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-}
 
 void Ccloth::drawShaded()
 
