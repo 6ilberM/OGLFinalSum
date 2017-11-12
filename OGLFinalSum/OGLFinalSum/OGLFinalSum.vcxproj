@@ -145,6 +145,7 @@
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Particle.cpp" />
+    <ClCompile Include="Perlin.cpp" />
     <ClCompile Include="Primitive.cpp" />
     <ClCompile Include="Rain.cpp" />
     <ClCompile Include="Rparticle.cpp" />
@@ -164,6 +165,7 @@
     <ClInclude Include="FrameBuffer.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="Particle.h" />
+    <ClInclude Include="Perlin.h" />
     <ClInclude Include="Primitive.h" />
     <ClInclude Include="Rain.h" />
     <ClInclude Include="Rparticle.h" />

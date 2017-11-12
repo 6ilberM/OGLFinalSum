@@ -128,7 +128,7 @@ void CTerrain::loadHeightmap()
 	}
 
 	// Copy the array data into a float array, and scale and offset the heights.
-	m_Heightmap.resize(m_Info.NumRows * m_Info.NumCols, 0);
+	m_Heightmap.resize(m_Info.NumRows * m_Info.NumCols,0);
 	for (UINT i = 0; i < m_Info.NumRows * m_Info.NumCols; ++i)
 	{
 		m_Heightmap[i] = (float)in[i] * m_Info.HeightScale + m_Info.HeightOffset;

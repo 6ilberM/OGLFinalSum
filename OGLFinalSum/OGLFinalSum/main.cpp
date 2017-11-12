@@ -41,6 +41,7 @@
 #include "Subtitle.h"
 #include "Rain.h"
 #include "Light.h"
+#include "Perlin.h"
 
 //Globals
 GLuint program;
@@ -64,6 +65,8 @@ CTerrain *TIERRA;
 CfrBuff *FRAMEBUFF;
 CSphere *esfera;
 CRain *Lluvia;
+CLight *light;
+CPerlin *GenTerrain;
 
 TextLabel* label;
 TextLabel* Wind;
@@ -195,8 +198,11 @@ bool updateMousePicking()
 }
 
 CTerrain::InitInfo s_parameter;
+CPerlin::InitPerlin s_GenParameter;
+
 glm::vec3 ball_pos(0, -0.1, 0); //the center of our one ball
 float ball_radius = .5f; //the radius of our one ball
+
 
 void init()
 {
@@ -234,7 +240,14 @@ void init()
 	cubemapTex.push_back((std::string)"Assets/skybox1/front.jpg");
 
 	SkyboxCube = new Skybox(Cube, mainCamera, cubemapTex, skyProgram);
+	
+	light = new CLight(mainCamera,LightProgram);
+
 #pragma region Terrain
+	s_GenParameter.NumCols = 513;
+	s_GenParameter.NumRows = 513;
+	s_GenParameter.CellSpacing = .5f;
+	GenTerrain = new CPerlin(mainCamera, secprogram,light, 0.5f, 0.5f,s_GenParameter);
 
 #pragma endregion
 
@@ -243,6 +256,7 @@ void init()
 	esfera->setScale(glm::vec3(1, 1, 1));
 
 	Lluvia = new CRain(glm::vec3(0,0,0),4000,mainCamera,sextoprog);
+
 }
 int tempval = 2;
 
