@@ -256,16 +256,16 @@ void init()
 
 	light = new CLight(mainCamera, LightProgram);
 
-	Cuadrado = new Primitive(mainCamera, Whyprogram, light, 0.5f, 0.5f);
-	Cuadrado->setScale(glm::vec3(6.0f, 6.0f, 6.0f));
-	Cuadrado->setPosition(glm::vec3(1.0f, -1.0f, 0.0f));
-	Cuadrado->setRotation(glm::vec3(0.0f, 30.0f, 0.0f));
+	//Cuadrado = new Primitive(mainCamera, Whyprogram, light, 0.5f, 0.5f);
+	//Cuadrado->setScale(glm::vec3(6.0f, 6.0f, 6.0f));
+	//Cuadrado->setPosition(glm::vec3(1.0f, -1.0f, 0.0f));
+	//Cuadrado->setRotation(glm::vec3(0.0f, 30.0f, 0.0f));
 
 	esfera = new CSphere(mainCamera, Whyprogram, 4.0f, light, 0.5f, 0.5f);
 	esfera->setPosition(ball_pos);
 #pragma endregion
 
-
+	FRAMEBUFF = new CfrBuff(thirprogram);
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 }
 int tempval = 2;
@@ -290,9 +290,9 @@ void update()
 	//Cuadrado->setPosition(glm::vec3(Cuadrado->getPosition().x, TIERRA->getHeight(Cuadrado->getPosition().x, Cuadrado->getPosition().z), Cuadrado->getPosition().z));
 
 
-	light->update(keyState);
+	//light->update(keyState);
 	mainCamera->keyMoveCamera(keyState, DeltaTime);
-	esfera->update(keyState, ball_pos*6.0f);
+	//esfera->update(keyState, ball_pos*6.0f);
 	SkyboxCube->update(1.0f);
 	glutPostRedisplay();
 }
@@ -304,19 +304,19 @@ void render()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
 
-
+	//glStencilMask(0x00);
 	SkyboxCube->render();
 
-
-
-
-
-	Cuadrado->render();
+	//Cuadrado->render();
 
 	light->render();
 	esfera->render();
+
+
 	TIERRA->render();
 	Lluvia->render(DeltaTime);
+
+	//FRAMEBUFF->render(FALSE);
 	//glStencilMask(0x00);
 
 

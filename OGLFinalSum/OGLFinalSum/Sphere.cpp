@@ -15,7 +15,7 @@ CSphere::CSphere(Camera* _camera, GLuint prog,float _Radius, CLight * _light, fl
 
 	setTexture(textureFileName);
 
-	scale = glm::vec3(2.0f, 2.0f, 2.0f);
+	scale = glm::vec3(8.0f, 8.0f, 8.0f);
 	position = glm::vec3(0.0f, 1.0f, 0.0);
 	color = glm::vec3(1.0f, 1.0f, 1.0f);
 

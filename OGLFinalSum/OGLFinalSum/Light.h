@@ -24,7 +24,9 @@ public:
 	void moveBackward();
 	void moveLeft();
 	void moveRight();
-
+	void moveup();
+	glm::vec3 m_origin;
+	void movedown();
 	~CLight();
 
 private:

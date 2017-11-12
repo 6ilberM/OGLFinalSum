@@ -6,9 +6,9 @@ CLight::CLight(Camera* camera, GLuint program)
 	this->camera = camera;
 	this->program = program;
 
-	LightPos = glm::vec3(0.0f, 0.0f, 0.0f);
+	LightPos = glm::vec3(1.0f, 0.0f, 0.0f);
 	LightColor = glm::vec3(1.0f, 1.0f, 1.0f);
-
+	m_origin=LightPos;
 	Utils::setCubeA(vertices, indices);
 
 	glGenBuffers(1, &vbo);
@@ -106,8 +106,20 @@ void CLight::update(unsigned char keystate[]) {
 	{
 		moveRight();
 	}
+	if (keystate[(unsigned char)'r'] == BUTTON_DOWN)
+	{
+		LightPos = m_origin;
+	}
 
+	if (keystate[(unsigned char)'q'] == BUTTON_DOWN)
+	{
+		moveup();
+	}
 
+	if (keystate[(unsigned char)'o'] == BUTTON_DOWN)
+	{
+		movedown();
+	}
 }
 
 glm::vec3 & CLight::getPosition()
@@ -139,6 +151,15 @@ void CLight::moveLeft() {
 void CLight::moveRight() {
 
 	LightPos += glm::vec3(1.0f, 0.0f, 0.0f) * speed;
+}
+void CLight::moveup() {
+
+	LightPos += glm::vec3(0.0f, 1.0f, 0.0f) * speed;
+}
+
+void CLight::movedown() {
+
+	LightPos += glm::vec3(0.0f, -1.0f, 0.0f) * speed;
 }
 
 
