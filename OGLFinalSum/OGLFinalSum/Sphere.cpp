@@ -1,13 +1,16 @@
 #include "Sphere.h"
 #include "camera.h"
 
-CSphere::CSphere(Camera* _camera, GLuint prog,float _Radius) {
+CSphere::CSphere(Camera* _camera, GLuint prog,float _Radius, CLight * _light, float _ambientStrength, float _specularStrength) {
 
 	std::string textureFileName = "Assets/Images/Red_Wool.png";
 	camera = _camera;
 	program = prog;
 	Radius = _Radius;
+	light = _light;
 
+	ambientStrength = _ambientStrength;
+	specularStrength = _specularStrength;
 	velocity = glm::vec3(0.0f, 0.0f, 0.0f);
 
 	setTexture(textureFileName);
@@ -67,7 +70,7 @@ void CSphere::update(unsigned char keyState[255],glm::vec3 v_Ballpos) {
 
 void CSphere::render() {
 
-	glUseProgram(program);
+	/*glUseProgram(program);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glActiveTexture(GL_TEXTURE0);
@@ -106,7 +109,64 @@ void CSphere::render() {
 
 	glBindVertexArray(vao);
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);*/
+
+
+
+	glUseProgram(program);
+
+	//if(bIsTextureSet)
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glUniform1i(glGetUniformLocation(program, "Texture"), 0);
+
+	glm::mat4 model;
+	model = glm::translate(model, position);
+
+	//model = glm::translate(model, glm::vec3(0.0f * this->scale.x, 0.0f * scale.y, 0.0f));
+	//model = glm::rotate(model, glm::radians(angle.x), glm::vec3(1.0, 0.0, 0.0));
+	//model = glm::rotate(model, glm::radians(angle.y), glm::vec3(0.0, 1.0, 0.0));
+	//model = glm::rotate(model, glm::radians(angle.z), glm::vec3(0.0, 0.0, 1.0));
+	//model = glm::translate(model, glm::vec3(-0.0f * scale.x, -0.0f * scale.y, 0.0f));
+	model = glm::scale(model, glm::vec3(3, 3, 3));
+
+	glm::mat4 vp = camera->getProjectionMatrix() * camera->getViewMatrix();
+	GLint vpLoc = glGetUniformLocation(program, "vp");
+	glUniformMatrix4fv(vpLoc, 1, GL_FALSE, glm::value_ptr(vp));
+
+	GLint modelLoc = glGetUniformLocation(program, "model");
+	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+	// lighting calculations
+
+	GLint colorLoc = glGetUniformLocation(program, "objectColor");
+	glUniform3f(colorLoc, color.x, color.y, color.z);
+
+	GLuint cameraPosLoc = glGetUniformLocation(program, "cameraPos");
+	glUniform3f(cameraPosLoc, camera->getPosition().x, camera->getPosition().y, camera->getPosition().z);
+
+	GLuint lightPosLoc = glGetUniformLocation(program, "lightPos");
+	glUniform3f(lightPosLoc, this->light->getPosition().x, this->light->getPosition().y, this->light->getPosition().z);
+
+	GLuint lightColorLoc = glGetUniformLocation(program, "lightColor");
+	glUniform3f(lightColorLoc, this->light->getColor().x, this->light->getColor().y, this->light->getColor().z);
+
+	GLuint specularStrengthLoc = glGetUniformLocation(program, "specularStrength");
+	glUniform1f(specularStrengthLoc, specularStrength);
+
+	GLuint ambientStrengthLoc = glGetUniformLocation(program, "ambientStrength");
+	glUniform1f(ambientStrengthLoc, ambientStrength);
+
+	glBindVertexArray(vao);
+	//indices[0] = indices[0];
+	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
+
+	glDisableVertexAttribArray(0);
+	glDisableVertexAttribArray(1);
+	glBindVertexArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
 
 }
 

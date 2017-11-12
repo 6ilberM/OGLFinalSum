@@ -4,15 +4,16 @@
 #include "ShaderLoader.h"
 #include "Utils.h"
 #include <vector>
-#include <time.h>   
+#include <time.h>
+#include "Light.h"
 using namespace std;
-
+class CLight;
 class Camera;
 class Primitive
 {
 public:
 	Camera* camera;
-
+	CLight*light;
 	std::vector<VertexFormat>vertices;
 	std::vector<GLuint>indices;
 
@@ -30,8 +31,9 @@ public:
 	GLuint program;
 
 	float speed;
-
-	Primitive(Camera* _camera, GLuint prog);
+	float ambientStrength;
+	float specularStrength;
+	Primitive(Camera* _camera, GLuint prog, CLight * _light, float _ambientStrength, float _specularStrength);
 	~Primitive();
 
 	void update(unsigned char keyState[255]);

@@ -1,13 +1,17 @@
 #include "Primitive.h"
 #include "camera.h"
 
-Primitive::Primitive(Camera* _camera, GLuint prog) {
+Primitive::Primitive(Camera* _camera, GLuint prog, CLight * _light, float _ambientStrength, float _specularStrength) {
 
 	std::string textureFileName = "Assets/Images/Red_Wool.png";
 	camera = _camera;
 	program = prog;
+	light = _light;
 
 	velocity = glm::vec3(0.0f, 0.0f, 0.0f);
+
+	ambientStrength = _ambientStrength;
+	specularStrength = _specularStrength;
 
 	setTexture(textureFileName);
 
@@ -105,29 +109,63 @@ void Primitive::render() {
 
 	model = glm::scale(model, scale);
 	
-	GLint movel = glGetUniformLocation(program, "model");
+	//GLint movel = glGetUniformLocation(program, "model");
 
-	glUniformMatrix4fv(movel, 1, GL_FALSE, glm::value_ptr(model));
+	//glUniformMatrix4fv(movel, 1, GL_FALSE, glm::value_ptr(model));
 
-	GLint cameraL = glGetUniformLocation(program, "CameraPos");
-	glm::vec3 CameraPos = camera->getPosition();
+	//GLint cameraL = glGetUniformLocation(program, "CameraPos");
+	//glm::vec3 CameraPos = camera->getPosition();
 
-	glUniform3f(cameraL, CameraPos.x, CameraPos.y, CameraPos.z);
+	//glUniform3f(cameraL, CameraPos.x, CameraPos.y, CameraPos.z);
 
+
+	//glm::mat4 vp = camera->getProjectionMatrix() * camera->getViewMatrix();
+	//GLint vepe = glGetUniformLocation(program, "vp");
+
+	//glUniformMatrix4fv(vepe, 1, GL_FALSE, glm::value_ptr(vp));
+	//glm::mat4 mvp = camera->getProjectionMatrix() * camera->getViewMatrix() * model;
+	//
+	//GLint mvpLoc = glGetUniformLocation(program, "mvp");
+	//glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, glm::value_ptr(mvp));
+
+	//glBindVertexArray(vao);
+	//glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+	//glBindVertexArray(0);
 
 	glm::mat4 vp = camera->getProjectionMatrix() * camera->getViewMatrix();
-	GLint vepe = glGetUniformLocation(program, "vp");
+	GLint vpLoc = glGetUniformLocation(program, "vp");
+	glUniformMatrix4fv(vpLoc, 1, GL_FALSE, glm::value_ptr(vp));
 
-	glUniformMatrix4fv(vepe, 1, GL_FALSE, glm::value_ptr(vp));
-	glm::mat4 mvp = camera->getProjectionMatrix() * camera->getViewMatrix() * model;
-	
-	GLint mvpLoc = glGetUniformLocation(program, "mvp");
-	glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, glm::value_ptr(mvp));
+	GLint modelLoc = glGetUniformLocation(program, "model");
+	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+	GLint colorLoc = glGetUniformLocation(program, "objectColor");
+	glUniform3f(colorLoc, color.x, color.y, color.z);
+
+	GLuint cameraPosLoc = glGetUniformLocation(program, "cameraPos");
+	glUniform3f(cameraPosLoc, camera->getPosition().x, camera->getPosition().y, camera->getPosition().z);
+
+	GLuint lightPosLoc = glGetUniformLocation(program, "lightPos");
+	glUniform3f(lightPosLoc, this->light->getPosition().x, this->light->getPosition().y, this->light->getPosition().z);
+
+	GLuint lightColorLoc = glGetUniformLocation(program, "lightColor");
+	glUniform3f(lightColorLoc, this->light->getColor().x, this->light->getColor().y, this->light->getColor().z);
+
+	GLuint specularStrengthLoc = glGetUniformLocation(program, "specularStrength");
+	glUniform1f(specularStrengthLoc, specularStrength);
+
+	GLuint ambientStrengthLoc = glGetUniformLocation(program, "ambientStrength");
+	glUniform1f(ambientStrengthLoc, ambientStrength);
 
 	glBindVertexArray(vao);
+	//indices[0] = indices[0];
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 
+	glDisableVertexAttribArray(0);
+	glDisableVertexAttribArray(1);
+	glBindVertexArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void Primitive::moveLeft() {

@@ -198,7 +198,7 @@ bool updateMousePicking()
 CTerrain::InitInfo s_parameter;
 //CPerlin::InitPerlin s_GenParameter;
 
-glm::vec3 ball_pos(0, -0.1, 0); //the center of our one ball
+glm::vec3 ball_pos(0, -1, 0); //the center of our one ball
 float ball_radius = .5f; //the radius of our one ball
 
 
@@ -219,9 +219,6 @@ void init()
 
 #pragma region Other Cubes
 
-	Cuadrado = new Primitive(mainCamera, secprogram);
-	Cuadrado->setPosition(glm::vec3(1.0f, -1.0f, 0.0f));
-	Cuadrado->setRotation(glm::vec3(0.0f, 30.0f, 0.0f));
 
 
 #pragma endregion
@@ -237,8 +234,6 @@ void init()
 	cubemapTex.push_back((std::string)"Assets/skybox1/front.jpg");
 
 	SkyboxCube = new Skybox(Cube, mainCamera, cubemapTex, skyProgram);
-
-
 
 #pragma region Terrain
 	//s_GenParameter.NumCols = 513;
@@ -258,8 +253,16 @@ void init()
 	s_parameter.HeightmapFilename = std::string("Assets/map/coastMountain513.raw");
 
 	TIERRA = new CTerrain(mainCamera, secprogram, s_parameter);
-	
+
 	light = new CLight(mainCamera, LightProgram);
+
+	Cuadrado = new Primitive(mainCamera, Whyprogram, light, 0.5f, 0.5f);
+	Cuadrado->setScale(glm::vec3(6.0f, 6.0f, 6.0f));
+	Cuadrado->setPosition(glm::vec3(1.0f, -1.0f, 0.0f));
+	Cuadrado->setRotation(glm::vec3(0.0f, 30.0f, 0.0f));
+
+	esfera = new CSphere(mainCamera, Whyprogram, 4.0f, light, 0.5f, 0.5f);
+	esfera->setPosition(ball_pos);
 #pragma endregion
 
 
@@ -274,7 +277,7 @@ void update()
 {
 	ball_time++;
 
-	ball_pos.z = glm::cos((ball_time*10.0f) / 23);
+	ball_pos.z = glm::cos((ball_time*10.0f) / 140.0f);
 
 	auto t1 = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<float, std::milli> fp_ms = t1 - t2;
@@ -282,14 +285,14 @@ void update()
 	DeltaTime = DeltaTime * 1 / 1000.0f;
 	t2 = t1;
 
-	Cuadrado->update(keyState);
+	//Cuadrado->update(keyState);
 	//Movement!
-	Cuadrado->setPosition(glm::vec3(Cuadrado->getPosition().x, TIERRA->getHeight(Cuadrado->getPosition().x, Cuadrado->getPosition().z), Cuadrado->getPosition().z));
+	//Cuadrado->setPosition(glm::vec3(Cuadrado->getPosition().x, TIERRA->getHeight(Cuadrado->getPosition().x, Cuadrado->getPosition().z), Cuadrado->getPosition().z));
 
 
 	light->update(keyState);
 	mainCamera->keyMoveCamera(keyState, DeltaTime);
-
+	esfera->update(keyState, ball_pos*6.0f);
 	SkyboxCube->update(1.0f);
 	glutPostRedisplay();
 }
@@ -300,7 +303,7 @@ void render()
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
-	
+
 
 	SkyboxCube->render();
 
@@ -309,10 +312,11 @@ void render()
 
 
 	Cuadrado->render();
-	Lluvia->render(DeltaTime);
-	light->render();
-	TIERRA->render();
 
+	light->render();
+	esfera->render();
+	TIERRA->render();
+	Lluvia->render(DeltaTime);
 	//glStencilMask(0x00);
 
 

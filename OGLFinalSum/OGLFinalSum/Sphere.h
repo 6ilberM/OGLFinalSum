@@ -4,17 +4,22 @@
 #include "ShaderLoader.h"
 #include "Utils.h"
 #include <vector>
-#include <time.h>   
+#include <time.h> 
+#include "Light.h"
 using namespace std;
 
+class CLight;
 class Camera;
+
 class CSphere
 {
 public:
 	Camera* camera;
+	CLight* light;
 
 	std::vector<VertexFormat>vertices;
 	std::vector<GLuint>indices;
+
 
 	glm::vec3 position;
 	glm::vec3 velocity;
@@ -32,10 +37,13 @@ public:
 	float speed;
 	float Radius;
 
-	CSphere(Camera* _camera, GLuint prog,float _Radius);
+	float ambientStrength;
+	float specularStrength;
+
+	CSphere(Camera* _camera, GLuint prog, float _Radius, CLight *_light, float _ambientStrength, float _specularStrength);
 	~CSphere();
 
-	void update(unsigned char keyState[255],glm::vec3 v_Ballpos);
+	void update(unsigned char keyState[255], glm::vec3 v_Ballpos);
 
 	void render();
 	void setPosition(glm::vec3 _position);
