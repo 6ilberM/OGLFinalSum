@@ -313,7 +313,7 @@ void render()
 	esfera->render();
 
 
-	TIERRA->render();
+	//TIERRA->render();
 	Lluvia->render(DeltaTime);
 
 	//FRAMEBUFF->render(FALSE);

@@ -32,7 +32,6 @@ CPerlin::CPerlin(Camera * _camera, GLuint prog, CLight * _light, float _ambientS
 
 	GenerateHMap();
 	process();
-	smooth();
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 	buildVB();
@@ -126,9 +125,9 @@ void CPerlin::GenerateHMap()
 
 void CPerlin::process()
 {
-	for (int i = 0; i < perlininfo.NumCols; i++)
+	for (double i = 0; i < 1.0; i+= 1/perlininfo.NumCols)
 	{
-		for (int j = 0; j < perlininfo.NumRows; j++)
+		for (int j = 0; j < 1/ 1 / perlininfo.NumRows; j++)
 		{
 			m_Heightmap[i*j] = OctavePerlin(i, j, 1, 8, 1);
 		}

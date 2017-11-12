@@ -10,7 +10,7 @@
 #include <cstdlib>
 
 using namespace std;
-static int p[513];
+static int p[512];
 
 const int  permutation[] = {
 	151,160,137,91,90,15,																// Hash lookup table as defined by Ken Perlin.  This is a randomly
@@ -30,7 +30,8 @@ const int  permutation[] = {
 
 static int Perlin() {
 	//p = new int[513];
-	for (int x = 0; x<513; x++) {
+	for (int x = 0; x < 512; x++)
+	{
 		p[x] = permutation[x % 256];
 	}
 };
