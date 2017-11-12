@@ -96,7 +96,7 @@ GLfloat lastX = 800 / 2.0;
 GLfloat lastY = 800 / 2.0;
 
 bool firstMouse = true;
-float f_pickplacex = 6.0f, f_pickplacey = 7.0f;
+
 
 // Keyboard Input
 #define BUTTON_UP 0
@@ -145,8 +145,7 @@ void mouse(int button, int button_state, int x, int y)
 		break;
 	}
 }
-float pickx;
-float picky;
+
 
 void mousePassiveMove(int x, int y)
 {
@@ -163,12 +162,10 @@ void mousePassiveMove(int x, int y)
 	GLfloat xoffset = x - lastX;
 	GLfloat yofsset = lastY - y; //reversed since y coordinates go from bottom to left
 
-	pickx = xoffset;
-	picky = yofsset;
 
 	lastX = x;
 	lastY = y;
-	
+
 
 	GLfloat sensitivity = 0.60f;
 	xoffset *= sensitivity;
@@ -188,8 +185,8 @@ void mousePassiveMove(int x, int y)
 	front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
 	front.y = sin(glm::radians(pitch));
 	front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-	
-	mainCamera->setCameraFront(front);
+
+	mainCamera->setCameraFront(glm::normalize(front));
 }
 
 bool updateMousePicking()
@@ -216,17 +213,16 @@ void init()
 	program = sLoader.createprogram("Assets/Shaders/VAO_Triangle.vs", "Assets/Shaders/VAO_Triangle.fs");
 	secprogram = sLoader.createprogram("Assets/Shaders/AlphaTriangle.vs", "Assets/Shaders/AlphaTriangle.fs");
 	thirprogram = sLoader.createprogram("Assets/Shaders/BADCRT.vs", "Assets/Shaders/BADCRT.fs");
-	qtoprogram = sLoader.createprogram("Assets/Shaders/Star.vs", "Assets/Shaders/Star.fs", "Assets/Shaders/Star.gs");
-	fifprogram = sLoader.createProgram("Assets/Shaders/TriangleTs.vs", "Assets/Shaders/TriangleTs.fs", "Assets/Shaders/TriangleTs.tcs", "Assets/Shaders/TriangleTs.tes");
 	sextoprog = sLoader.createprogram("Assets/Shaders/Particle.vs", "Assets/Shaders/Particle.fs", "Assets/Shaders/Particle.gs");
-	textProgram = sLoader.createprogram("Assets/Shaders/text.vs", "Assets/Shaders/text.fs");
 	LightProgram = sLoader.createprogram("Assets/Shaders/Light.vs", "Assets/Shaders/Light.fs");
 	Whyprogram = sLoader.createprogram("Assets/Shaders/LTerrain.vs", "Assets/Shaders/LTerrain.fs");
+
 #pragma region Other Cubes
 
 	Cuadrado = new Primitive(mainCamera, secprogram);
 	Cuadrado->setPosition(glm::vec3(1.0f, -1.0f, 0.0f));
 	Cuadrado->setRotation(glm::vec3(0.0f, 30.0f, 0.0f));
+
 
 #pragma endregion
 
@@ -241,8 +237,8 @@ void init()
 	cubemapTex.push_back((std::string)"Assets/skybox1/front.jpg");
 
 	SkyboxCube = new Skybox(Cube, mainCamera, cubemapTex, skyProgram);
-	
-	light = new CLight(mainCamera,LightProgram);
+
+
 
 #pragma region Terrain
 	//s_GenParameter.NumCols = 513;
@@ -253,15 +249,21 @@ void init()
 
 	//GenTerrain = new CPerlin(mainCamera, Whyprogram,light, 0.5f, 0.5f,s_GenParameter);
 
+	Lluvia = new CRain(glm::vec3(0, 0, 0), 4000, mainCamera, sextoprog);
+	s_parameter.NumCols = 513;
+	s_parameter.NumRows = 513;
+	s_parameter.HeightOffset = -50;
+	s_parameter.HeightScale = .3;
+	s_parameter.CellSpacing = 0.8f;
+	s_parameter.HeightmapFilename = std::string("Assets/map/coastMountain513.raw");
 
+	TIERRA = new CTerrain(mainCamera, secprogram, s_parameter);
+	
+	light = new CLight(mainCamera, LightProgram);
 #pragma endregion
 
-	esfera = new CSphere(mainCamera, secprogram, 0.08);
-	esfera->setPosition(glm::vec3(0, 0.0, 0));
-	esfera->setScale(glm::vec3(1, 1, 1));
 
-	Lluvia = new CRain(glm::vec3(0,0,0),4000,mainCamera,sextoprog);
-
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 }
 int tempval = 2;
 
@@ -272,7 +274,7 @@ void update()
 {
 	ball_time++;
 
-	ball_pos.z = glm::cos((ball_time*10.0f)/23);
+	ball_pos.z = glm::cos((ball_time*10.0f) / 23);
 
 	auto t1 = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<float, std::milli> fp_ms = t1 - t2;
@@ -280,12 +282,16 @@ void update()
 	DeltaTime = DeltaTime * 1 / 1000.0f;
 	t2 = t1;
 
-	glutPostRedisplay();
+	Cuadrado->update(keyState);
+	//Movement!
+	Cuadrado->setPosition(glm::vec3(Cuadrado->getPosition().x, TIERRA->getHeight(Cuadrado->getPosition().x, Cuadrado->getPosition().z), Cuadrado->getPosition().z));
+
+
 	light->update(keyState);
 	mainCamera->keyMoveCamera(keyState, DeltaTime);
-	esfera->update(keyState, ball_pos);
-	SkyboxCube->update(1.0f);
 
+	SkyboxCube->update(1.0f);
+	glutPostRedisplay();
 }
 
 void render()
@@ -294,14 +300,24 @@ void render()
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
+	
 
-	light->render();
-	//glStencilMask(0x00);
 	SkyboxCube->render();
-	//esfera->render();
-	//GenTerrain->render();
+
+
+
+
+
+	Cuadrado->render();
 	Lluvia->render(DeltaTime);
+	light->render();
+	TIERRA->render();
+
+	//glStencilMask(0x00);
+
+
 	glutSwapBuffers();
+
 }
 
 int main(int argc, char** argv)
@@ -320,10 +336,10 @@ int main(int argc, char** argv)
 	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 	glutSetOption(GLUT_MULTISAMPLE, 16);
 	glEnable(GL_MULTISAMPLE);
-	glEnable(GL_DEPTH_TEST);
+	//glEnable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
 	glEnable(GL_CULL_FACE);
-	glEnable(GL_STENCIL_TEST);
+	//glEnable(GL_STENCIL_TEST);
 
 	init();
 

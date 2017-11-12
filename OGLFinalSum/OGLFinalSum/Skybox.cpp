@@ -65,7 +65,6 @@ Skybox::Skybox(ModelType modelType, Camera* _camera, std::vector<std::string>cub
 	glBindVertexArray(0);
 
 
-
 	// Cubemap (Skybox)
 	std::vector<const GLchar*> faces;
 	for (int i = 0; i < cubeMapTexture.size(); i++)
@@ -73,7 +72,6 @@ Skybox::Skybox(ModelType modelType, Camera* _camera, std::vector<std::string>cub
 		faces.push_back(cubeMapTexture[i].c_str());
 	}
 	texture = loadCubeMap(faces);
-
 
 
 }
@@ -96,7 +94,7 @@ void Skybox::render() {
 	glBindTexture(GL_TEXTURE_CUBE_MAP, texture);
 	glm::mat4 world;
 	//change far plane
-	world = glm::scale(world, glm::vec3(260.0f, 260.0f, 260.0f));
+	world = glm::scale(world, glm::vec3(250.0f, 250.0f, 250.0f));
 	glm::mat4 mvp;
 	mvp = camera->getProjectionMatrix() * camera->getViewMatrix() * world;
 	glUniformMatrix4fv(glGetUniformLocation(program, "mvp"), 1, GL_FALSE, glm::value_ptr(mvp));

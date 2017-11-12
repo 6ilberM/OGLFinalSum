@@ -53,6 +53,8 @@ public:
 	float width() const;
 	float depth() const;
 	float getHeight(float x, float z) const;
+	glm::vec3 getNormal(int x, int z);
+	void computeNormals();
 	void loadHeightmap();
 	void setTexture(std::string texFileName);
 

@@ -24,9 +24,11 @@ CTerrain::CTerrain(Camera* _camera, GLuint prog, InitInfo& _minfo)
 	
 	std::string textureFileName = "Assets/Images/gr0und.JPG";
 	setTexture(textureFileName);
+
 	mNumVertices = m_Info.NumRows*m_Info.NumCols;
 	mNumFaces = (m_Info.NumRows - 1)*(m_Info.NumCols - 1) * 2;
 	
+
 	loadHeightmap();
 	smooth();
 	
@@ -107,6 +109,100 @@ float CTerrain::getHeight(float x, float z)const
 	}
 
 }
+
+//glm::vec3 cterrain::getnormal(int x, int z)
+//{
+//	if (!computednormals)
+//	{
+//		computenormals();
+//	}
+//	return normals[z][x];
+//}
+//
+//void cterrain::computenormals()
+//{
+//	if (computednormals) {
+//		return;
+//	}
+//
+//	//compute the rough version of the normals
+//	glm::vec3** normals2 = new glm::vec3*[length];
+//	for (int i = 0; i < length; i++) {
+//		normals2[i] = new glm::vec3[width];
+//	}
+//
+//	for (int z = 0; z < length; z++) {
+//		for (int x = 0; x < width; x++) {
+//			glm::vec3 sum(0.0f, 0.0f, 0.0f);
+//
+//			glm::vec3 out;
+//			if (z > 0) {
+//				out = glm::vec3(0.0f, heights[z - 1][x] - heights[z][x], -1.0f);
+//			}
+//			glm::vec3 in;
+//			if (z < length - 1) {
+//				in = glm::vec3(0.0f, heights[z + 1][x] - heights[z][x], 1.0f);
+//			}
+//			glm::vec3 left;
+//			if (x > 0) {
+//				left = glm::vec3(-1.0f, heights[z][x - 1] - heights[z][x], 0.0f);
+//			}
+//			glm::vec3 right;
+//			if (x < width - 1) {
+//				right = glm::vec3(1.0f, heights[z][x + 1] - heights[z][x], 0.0f);
+//			}
+//
+//			if (x > 0 && z > 0) {
+//				sum += glm::normalize(glm::cross(out, left));
+//			}
+//			if (x > 0 && z < length - 1) {
+//				sum += glm::normalize(glm::cross(left, in));
+//			}
+//			if (x < width - 1 && z < length - 1) {
+//				sum += glm::normalize(glm::cross(in, right));
+//			}
+//			if (x < width - 1 && z > 0) {
+//				sum += glm::normalize(glm::cross(right, out));
+//			}
+//
+//			normals2[z][x] = sum;
+//		}
+//	}
+//
+//	const float fallout_ratio = 0.5f;
+//	for (int z = 0; z < length; z++) {
+//		for (int x = 0; x < width; x++) {
+//			glm::vec3 sum = normals2[z][x];
+//
+//			if (x > 0) {
+//				sum += normals2[z][x - 1] * fallout_ratio;
+//			}
+//			if (x < width - 1) {
+//				sum += normals2[z][x + 1] * fallout_ratio;
+//			}
+//			if (z > 0) {
+//				sum += normals2[z - 1][x] * fallout_ratio;
+//			}
+//			if (z < length - 1) {
+//				sum += normals2[z + 1][x] * fallout_ratio;
+//			}
+//
+//			if (glm::length(sum) == 0) {
+//				sum = glm::vec3(0.0f, 1.0f, 0.0f);
+//			}
+//			normals[z][x] = sum;
+//		}
+//	}
+//
+//	for (int i = 0; i < length; i++) {
+//		delete[] normals2[i];
+//	}
+//	delete[] normals2;
+//
+//	computednormals = true;
+//
+//	computednormals = true;
+//}
 
 void CTerrain::loadHeightmap()
 {
@@ -231,7 +327,6 @@ void CTerrain::render() {
 	glBindTexture(GL_TEXTURE_2D, texture);
 
 	glUniform1i(glGetUniformLocation(program, "Texture"), 0);
-
 
 	UINT stride = sizeof(TerrainVertex);
 	UINT offset = 0;
@@ -394,7 +489,7 @@ void CTerrain::buildVB()
 			glm::vec3 tanX(1.0f, (r - l)*invTwoDX, 0.0f);
 
 			glm::vec3 N;
-			//glm::cross(&N, &tanZ, &tanX);
+
 			glm::vec3 _templ;
 			_templ = glm::cross(N, tanZ);
 			_templ = glm::cross(_templ, tanX);
