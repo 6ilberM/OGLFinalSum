@@ -41,7 +41,7 @@
 #include "Subtitle.h"
 #include "Rain.h"
 #include "Light.h"
-#include "Perlin.h"
+//#include "Perlin.h"
 
 //Globals
 GLuint program;
@@ -52,6 +52,7 @@ GLuint fifprogram;
 GLuint sextoprog;
 GLuint textProgram;
 GLuint LightProgram;
+GLuint Whyprogram;
 
 GLuint texture;
 GLuint lightVao;
@@ -66,7 +67,7 @@ CfrBuff *FRAMEBUFF;
 CSphere *esfera;
 CRain *Lluvia;
 CLight *light;
-CPerlin *GenTerrain;
+//CPerlin *GenTerrain;
 
 TextLabel* label;
 TextLabel* Wind;
@@ -198,7 +199,7 @@ bool updateMousePicking()
 }
 
 CTerrain::InitInfo s_parameter;
-CPerlin::InitPerlin s_GenParameter;
+//CPerlin::InitPerlin s_GenParameter;
 
 glm::vec3 ball_pos(0, -0.1, 0); //the center of our one ball
 float ball_radius = .5f; //the radius of our one ball
@@ -220,7 +221,7 @@ void init()
 	sextoprog = sLoader.createprogram("Assets/Shaders/Particle.vs", "Assets/Shaders/Particle.fs", "Assets/Shaders/Particle.gs");
 	textProgram = sLoader.createprogram("Assets/Shaders/text.vs", "Assets/Shaders/text.fs");
 	LightProgram = sLoader.createprogram("Assets/Shaders/Light.vs", "Assets/Shaders/Light.fs");
-
+	Whyprogram = sLoader.createprogram("Assets/Shaders/LTerrain.vs", "Assets/Shaders/LTerrain.fs");
 #pragma region Other Cubes
 
 	Cuadrado = new Primitive(mainCamera, secprogram);
@@ -244,10 +245,14 @@ void init()
 	light = new CLight(mainCamera,LightProgram);
 
 #pragma region Terrain
-	s_GenParameter.NumCols = 513;
-	s_GenParameter.NumRows = 513;
-	s_GenParameter.CellSpacing = .5f;
-	GenTerrain = new CPerlin(mainCamera, secprogram,light, 0.5f, 0.5f,s_GenParameter);
+	//s_GenParameter.NumCols = 513;
+	//s_GenParameter.NumRows = 513;
+	//s_GenParameter.CellSpacing = .08f;
+	//s_GenParameter.HeightOffset = -10;
+	//s_GenParameter.HeightScale = .3f;
+
+	//GenTerrain = new CPerlin(mainCamera, Whyprogram,light, 0.5f, 0.5f,s_GenParameter);
+
 
 #pragma endregion
 
@@ -276,6 +281,7 @@ void update()
 	t2 = t1;
 
 	glutPostRedisplay();
+	light->update(keyState);
 	mainCamera->keyMoveCamera(keyState, DeltaTime);
 	esfera->update(keyState, ball_pos);
 	SkyboxCube->update(1.0f);
@@ -289,9 +295,11 @@ void render()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
 
+	light->render();
 	//glStencilMask(0x00);
 	SkyboxCube->render();
 	//esfera->render();
+	//GenTerrain->render();
 	Lluvia->render(DeltaTime);
 	glutSwapBuffers();
 }

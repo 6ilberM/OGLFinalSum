@@ -6,7 +6,7 @@ CLight::CLight(Camera* camera, GLuint program)
 	this->camera = camera;
 	this->program = program;
 
-	LightPos = glm::vec3(0.0f, 0.0f, 10.0f);
+	LightPos = glm::vec3(0.0f, 0.0f, 100.0f);
 	LightColor = glm::vec3(1.0f, 1.0f, 1.0f);
 
 	Utils::setCubeA(vertices, indices);
@@ -64,9 +64,7 @@ void CLight::render() {
 	glUniform3f(lightPosLoc, getPosition().x, getPosition().y, getPosition().z);
 
 
-
 	glm::mat4 model;
-
 
 
 	//model = glm::translate(model, LightPos);

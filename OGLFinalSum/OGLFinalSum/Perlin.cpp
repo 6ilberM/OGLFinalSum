@@ -17,9 +17,11 @@ CPerlin::CPerlin(Camera * _camera, GLuint prog, CLight * _light, float _ambientS
 	perlininfo = _info;
 
 	srand(time(NULL));
+	std::string textureFileName = "Assets/Images/gr0und.JPG";
+	setTexture(textureFileName);
 
-	scale = glm::vec3(0.5f, 0.5f, 0.5f);
-	position = glm::vec3(-50.0, -40.0, -50.0);
+	scale = glm::vec3(100.0f, 100.0f, 100.0f);
+	position = glm::vec3(-0, -0, -0);
 	color = glm::vec3(1.0f, 1.0f, 1.0f);
 
 	ambientStrength = _ambientStrength;
@@ -28,6 +30,29 @@ CPerlin::CPerlin(Camera * _camera, GLuint prog, CLight * _light, float _ambientS
 	mNumVertices = perlininfo.NumRows*perlininfo.NumCols;
 	mNumFaces = (perlininfo.NumRows - 1)*(perlininfo.NumCols - 1) * 2;
 
+	GenerateHMap();
+	process();
+	smooth();
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+	buildVB();
+	buildIB();
+
+#pragma endregion
+
+#pragma region ATTRIBUTES
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(TerrainVertex), (void*)(offsetof(TerrainVertex, TerrainVertex::pos)));
+
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(TerrainVertex), (void*)(offsetof(TerrainVertex, TerrainVertex::normal)));
+
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(TerrainVertex), (void*)(offsetof(TerrainVertex, TerrainVertex::texC)));
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+
 
 }
 
@@ -35,21 +60,54 @@ CPerlin::~CPerlin()
 {
 }
 
-double CPerlin::Noise(double _x, double _y)
-{
-	double temp = m_Heightmap[_x*_y];
 
-	return temp;
+double CPerlin::average(GLuint i, GLuint j)
+{
+	// Function computes the average height of the ij element.
+	// It averages itself with its eight neighbor pixels.  Note
+	// that if a pixel is missing neighbor, we just don't include it
+	// in the average--that is, edge pixels don't have a neighbor pixel.
+	//
+	// ----------
+	// | 1| 2| 3|
+	// ----------
+	// |4 |ij| 6|
+	// ----------
+	// | 7| 8| 9|
+	// ----------
+
+	float avg = 0.0f;
+	float num = 0.0f;
+
+	for (GLuint m = i - 1; m <= i + 1; ++m)
+	{
+		for (GLuint n = j - 1; n <= j + 1; ++n)
+		{
+			if (inBounds(m, n))
+			{
+				avg += m_Heightmap[m*perlininfo.NumCols + n];
+				num += 1.0f;
+			}
+		}
+	}
+
+	return avg / num;
 }
-double CPerlin::Smooth(double x, double y)
+
+void CPerlin::smooth()
 {
+	std::vector<double> dest(m_Heightmap.size());
 
-	double corners = (Noise(x - 1, y - 1) + Noise(x + 1, y - 1) + Noise(x - 1, y + 1) + Noise(x + 1, y + 1)) / 16;
-	double sides = (Noise(x - 1, y) + Noise(x + 1, y) + Noise(x, y - 1) + Noise(x, y + 1)) / 8;
-	double center = Noise(x, y) / 4;
+	for (GLuint i = 0; i < perlininfo.NumRows; ++i)
+	{
+		for (GLuint j = 0; j < perlininfo.NumCols; ++j)
+		{
+			dest[i*perlininfo.NumCols + j] = average(i, j);
+		}
+	}
 
-	return corners + sides + center;
-
+	// Replace the old heightmap with the filtered one.
+	m_Heightmap = dest;
 }
 
 //Random number
@@ -61,9 +119,9 @@ void CPerlin::GenerateHMap()
 	//per vertex Rather than per point 
 	for (UINT i = 0; i < perlininfo.NumRows * perlininfo.NumCols; ++i)
 	{
-		m_Heightmap[i] = (double)rand() / (double)RAND_MAX;
+		m_Heightmap[i] = ((double)rand() / (double)RAND_MAX)*perlininfo.HeightOffset+ perlininfo.HeightScale;
 	}
-	process();
+
 }
 
 void CPerlin::process()
@@ -72,10 +130,107 @@ void CPerlin::process()
 	{
 		for (int j = 0; j < perlininfo.NumRows; j++)
 		{
-			m_Heightmap[i*j] = Smooth(i, j);
+			m_Heightmap[i*j] = OctavePerlin(i, j, 1, 8, 1);
 		}
 	}
+}
 
+void CPerlin::linInterp()
+{
+
+}
+
+
+double CPerlin::OctavePerlin(double x, double y, double z, int octaves, double persistence)
+{
+	double total = 0;
+	double frequency = 1;
+	double amplitude = 1;
+	for (int i = 0; i < octaves; i++) {
+		total += perlin(x * frequency, y * frequency, z * frequency) * amplitude;
+
+		amplitude *= persistence;
+		frequency *= 2;
+	}
+
+	return total;
+}
+
+double CPerlin::perlin(double x, double y, double z) {
+	//if (repeat > 0) {									// If we have any repeat on, change the coordinates to their "local" repetitions
+	//	x = x%repeat;
+	//	y = y%repeat;
+	//	z = z%repeat;
+	//}
+
+	int xi = (int)x & 255;								// Calculate the "unit cube" that the point asked will be located in
+	int yi = (int)y & 255;								// The left bound is ( |_x_|,|_y_|,|_z_| ) and the right bound is that
+	int zi = (int)z & 255;								// plus 1.  Next we calculate the location (from 0.0 to 1.0) in that cube.
+	double xf = x - (int)x;								// We also fade the location to smooth the result.
+	double yf = y - (int)y;
+	double zf = z - (int)z;
+	double u = fade(xf);
+	double v = fade(yf);
+	double w = fade(zf);
+
+	int a = p[xi] + yi;								// This here is Perlin's hash function.  We take our x value (remember,
+	int aa = p[a] + zi;								// between 0 and 255) and get a random value (from our p[] array above) between
+	int ab = p[a + 1] + zi;								// 0 and 255.  We then add y to it and plug that into p[], and add z to that.
+	int b = p[xi + 1] + yi;								// Then, we get another random value by adding 1 to that and putting it into p[]
+	int ba = p[b] + zi;								// and add z to it.  We do the whole thing over again starting with x+1.  Later
+	int bb = p[b + 1] + zi;								// we plug aa, ab, ba, and bb back into p[] along with their +1's to get another set.
+														// in the end we have 8 values between 0 and 255 - one for each vertex on the unit cube.
+														// These are all interpolated together using u, v, and w below.
+
+	double x1, x2, y1, y2;
+	x1 = lerp(grad(p[aa], xf, yf, zf),			// This is where the "magic" happens.  We calculate a new set of p[] values and use that to get
+		grad(p[ba], xf - 1, yf, zf),			// our final gradient values.  Then, we interpolate between those gradients with the u value to get
+		u);										// 4 x-values.  Next, we interpolate between the 4 x-values with v to get 2 y-values.  Finally,
+	x2 = lerp(grad(p[ab], xf, yf - 1, zf),			// we interpolate between the y-values to get a z-value.
+		grad(p[bb], xf - 1, yf - 1, zf),
+		u);										// When calculating the p[] values, remember that above, p[a+1] expands to p[xi]+yi+1 -- so you are
+	y1 = lerp(x1, x2, v);								// essentially adding 1 to yi.  Likewise, p[ab+1] expands to p[p[xi]+yi+1]+zi+1] -- so you are adding
+														// to zi.  The other 3 parameters are your possible return values (see grad()), which are actually
+	x1 = lerp(grad(p[aa + 1], xf, yf, zf - 1),		// the vectors from the edges of the unit cube to the point in the unit cube itself.
+		grad(p[ba + 1], xf - 1, yf, zf - 1),
+		u);
+	x2 = lerp(grad(p[ab + 1], xf, yf - 1, zf - 1),
+		grad(p[bb + 1], xf - 1, yf - 1, zf - 1),
+		u);
+	y2 = lerp(x1, x2, v);
+
+	return (lerp(y1, y2, w) + 1) / 2;						// For convenience we bound it to 0 - 1 (theoretical min/max before is -1 - 1)
+}
+
+double CPerlin::lerp(double a, double b, double x)
+{
+	return a + x * (b - a);
+}
+
+double CPerlin::fade(double t) {
+	// Fade function as defined by Ken Perlin.  This eases coordinate values
+	// so that they will "ease" towards integral values.  This ends up smoothing
+	// the final output.
+	return t * t * t * (t * (t * 6 - 15) + 10);			// 6t^5 - 15t^4 + 10t^3
+}
+
+
+double CPerlin::grad(int hash, double x, double y, double z)
+{
+	int h = hash & 15;									// Take the hashed value and take the first 4 bits of it (15 == 0b1111)
+	double u = h < 8 /* 0b1000 */ ? x : y;				// If the most signifigant bit (MSB) of the hash is 0 then set u = x.  Otherwise y.
+
+	double v;											// In Ken Perlin's original implementation this was another conditional operator (?:).  I
+														 // expanded it for readability.
+
+	if (h < 4 /* 0b0100 */)								// If the first and second signifigant bits are 0 set v = y
+		v = y;
+	else if (h == 12 /* 0b1100 */ || h == 14 /* 0b1110*/)// If the first and second signifigant bits are 1 set v = x
+		v = x;
+	else 												// If the first and second signifigant bits are not equal (0/1, 1/0) set v = z
+		v = z;
+
+	return ((h & 1) == 0 ? u : -u) + ((h & 2) == 0 ? v : -v); // Use the last 2 bits to decide if u and v are positive or negative.  Then return their addition.
 }
 
 void CPerlin::render()
@@ -96,33 +251,60 @@ void CPerlin::render()
 	glm::mat4 model;
 	model = glm::translate(model, position);
 
-	model = glm::translate(model, glm::vec3(0.0f * this->scale.x, 0.0f * scale.y, 0.0f));
-	model = glm::rotate(model, glm::radians(angle.x), glm::vec3(1.0, 0.0, 0.0));
-	model = glm::rotate(model, glm::radians(angle.y), glm::vec3(0.0, 1.0, 0.0));
-	model = glm::rotate(model, glm::radians(angle.z), glm::vec3(0.0, 0.0, 1.0));
-	model = glm::translate(model, glm::vec3(-0.0f * scale.x, -0.0f * scale.y, 0.0f));
+	//model = glm::translate(model, glm::vec3(0.0f * this->scale.x, 0.0f * scale.y, 0.0f));
+	//model = glm::rotate(model, glm::radians(angle.x), glm::vec3(1.0, 0.0, 0.0));
+	//model = glm::rotate(model, glm::radians(angle.y), glm::vec3(0.0, 1.0, 0.0));
+	//model = glm::rotate(model, glm::radians(angle.z), glm::vec3(0.0, 0.0, 1.0));
+	//model = glm::translate(model, glm::vec3(-0.0f * scale.x, -0.0f * scale.y, 0.0f));
 
 	model = glm::scale(model, scale);
 
-	GLint movel = glGetUniformLocation(program, "model");
+	//GLint movel = glGetUniformLocation(program, "model");
 
-	glUniformMatrix4fv(movel, 1, GL_FALSE, glm::value_ptr(model));
+	//glUniformMatrix4fv(movel, 1, GL_FALSE, glm::value_ptr(model));
 
-	GLint cameraL = glGetUniformLocation(program, "CameraPos");
-	glm::vec3 CameraPos = camera->getPosition();
+	//GLint cameraL = glGetUniformLocation(program, "CameraPos");
+	//glm::vec3 CameraPos = camera->getPosition();
 
-	glUniform3f(cameraL, CameraPos.x, CameraPos.y, CameraPos.z);
+	//glUniform3f(cameraL, CameraPos.x, CameraPos.y, CameraPos.z);
 
 
-	glm::mat4 vp = camera->getProjectionMatrix() * camera->getViewMatrix();
-	GLint vepe = glGetUniformLocation(program, "vp");
+	//glm::mat4 vp = camera->getProjectionMatrix() * camera->getViewMatrix();
+	//GLint vepe = glGetUniformLocation(program, "vp");
 
-	glUniformMatrix4fv(vepe, 1, GL_FALSE, glm::value_ptr(vp));
+	//glUniformMatrix4fv(vepe, 1, GL_FALSE, glm::value_ptr(vp));
 	glm::mat4 mvp = camera->getProjectionMatrix() * camera->getViewMatrix() * model;
 
-	GLint mvpLoc = glGetUniformLocation(program, "mvp");
-	glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, glm::value_ptr(mvp));
+/*	GLint mvpLoc = glGetUniformLocation(program, "mvp");
+	glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, glm::value_ptr(mvp))*/;
 
+	glm::mat4 vp = camera->getProjectionMatrix() * camera->getViewMatrix();
+	GLint vpLoc = glGetUniformLocation(program, "vp");
+	glUniformMatrix4fv(vpLoc, 1, GL_FALSE, glm::value_ptr(mvp));
+
+	GLint modelLoc = glGetUniformLocation(program, "model");
+	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+	//light
+	GLint colorLoc = glGetUniformLocation(program, "objectColor");
+	glUniform3f(colorLoc, color.x, color.y, color.z);
+
+	GLuint cameraPosLoc = glGetUniformLocation(program, "cameraPos");
+	glUniform3f(cameraPosLoc, camera->getPosition().x, camera->getPosition().y, camera->getPosition().z);
+
+	GLuint lightPosLoc = glGetUniformLocation(program, "lightPos");
+	glUniform3f(lightPosLoc, this->light->getPosition().x, this->light->getPosition().y, this->light->getPosition().z);
+
+	GLuint lightColorLoc = glGetUniformLocation(program, "lightColor");
+	glUniform3f(lightColorLoc, this->light->getColor().x, this->light->getColor().y, this->light->getColor().z);
+
+	GLuint specularStrengthLoc = glGetUniformLocation(program, "specularStrength");
+	glUniform1f(specularStrengthLoc, specularStrength);
+
+	GLuint ambientStrengthLoc = glGetUniformLocation(program, "ambientStrength");
+	glUniform1f(ambientStrengthLoc, ambientStrength);
+
+	//light
 	glBindVertexArray(vao);
 	glDrawElements(GL_TRIANGLE_STRIP, indices1.size(), GL_UNSIGNED_INT, 0);
 	//glDrawElements(GL_QUADS, indices1.size(), GL_UNSIGNED_INT, 0);
@@ -208,6 +390,7 @@ void CPerlin::setTexture(std::string  texFileName) {
 	SOIL_free_image_data(image);
 
 }
+
 bool CPerlin::inBounds(GLuint i, GLuint j)
 {
 	// True if ij are valid indices; false otherwise.
@@ -379,5 +562,5 @@ void CPerlin::buildIB()
 	indices1 = indices;
 	glGenBuffers(1, &ebo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * indices.size(), &indices[0], GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * indices1.size(), &indices[0], GL_STATIC_DRAW);
 }
